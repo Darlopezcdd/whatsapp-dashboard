@@ -42,10 +42,17 @@
 
         .container {
             width: 100%;
-            max-width: 600px; /* Kept narrow for elegance */
+            max-width: 1100px;
             display: flex;
             flex-direction: column;
             gap: 2rem;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            align-items: start;
         }
 
         .header {
@@ -249,6 +256,8 @@
             <p>Configura el contenido y dispara el flujo</p>
         </div>
 
+        <div class="steps-grid">
+
         <!-- Paso 1: Lista -->
         <div class="card">
             <h2>👥 1. Lista de Contactos</h2>
@@ -260,18 +269,21 @@
                     <div class="spinner"></div>
                 </button>
             </div>
+            <div style="margin-top: 1.2rem; padding: 0.8rem; background: #F3F4F6; border-radius: 8px; font-size: 0.85rem; color: #4B5563; border-left: 3px solid #6B7280;">
+                <p>ℹ️ <strong>Nota:</strong> Si no subes un listado nuevo, se utilizará automáticamente el último que hayas ingresado.</p>
+            </div>
             
             <% if (listados && listados.length > 0) { %>
-            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
-                <label style="display: block; margin-bottom: 0.75rem;">O elige un listado anterior:</label>
-                <div class="list-container" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <div style="margin-top: 1.5rem;">
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Historial en Drive (solo lectura):</p>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.4rem;">
                     <% listados.forEach(listado => { %>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #F9FAFB; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
-                            <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.9rem; font-weight: 500; max-width: 70%;"><%= listado.name %></div>
-                            <button type="button" onclick="reuseFile('<%= listado.id %>', 'listado', this)" style="width: auto; padding: 0.4rem 0.8rem; margin: 0; font-size: 0.8rem; background-color: var(--card-bg); color: var(--text-dark); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">Reutilizar</button>
-                        </div>
+                        <li style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem; opacity: 0.8;">
+                            <span>📄</span> 
+                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;" title="<%= listado.name %>"><%= listado.name %></span>
+                        </li>
                     <% }) %>
-                </div>
+                </ul>
             </div>
             <% } %>
         </div>
@@ -299,6 +311,7 @@
                 </button>
             </div>
         </div>
+        </div> <!-- Fin de steps-grid -->
 
         <!-- Paso 4: Disparar -->
         <button class="btn-trigger" id="btnTrigger" onclick="triggerN8n()">
