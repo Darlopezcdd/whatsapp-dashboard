@@ -50,15 +50,19 @@ app.get('/oauth2callback', async (req, res) => {
 
 app.get('/', requireAuth, async (req, res) => {
     try {
-        const listados = await driveService.listRecentFiles('listado', 5);
+        const listados = await driveService.listRecentFiles('listado', 15);
+        const mensajes = await driveService.listRecentFiles('message', 3);
+        const imagenes = await driveService.listRecentFiles('image', 3);
         res.render('index', { 
             listados: listados || [],
+            mensajes: mensajes || [],
+            imagenes: imagenes || [],
             error: null,
             success: null
         });
     } catch (error) {
         console.error("View Error:", error);
-        res.render('index', { listados: [], error: 'Error interno o de conexión de Google: ' + error.message, success: null });
+        res.render('index', { listados: [], mensajes: [], imagenes: [], error: 'Error interno o de conexión de Google: ' + error.message, success: null });
     }
 });
 

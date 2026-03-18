@@ -257,33 +257,27 @@
         </div>
 
         <div class="steps-grid">
-
         <!-- Paso 1: Lista -->
         <div class="card">
             <h2>👥 1. Lista de Contactos</h2>
             <div class="form-group">
                 <label>Subir Nuevo Listado (Excel o CSV)</label>
                 <input type="file" id="newListadoFile" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
-                <button type="button" id="btnListado" onclick="uploadListado()">
-                    <span>Subir Lista a Drive</span>
-                    <div class="spinner"></div>
-                </button>
             </div>
             <div style="margin-top: 1.2rem; padding: 0.8rem; background: #F3F4F6; border-radius: 8px; font-size: 0.85rem; color: #4B5563; border-left: 3px solid #6B7280;">
-                <p>ℹ️ <strong>Nota:</strong> Si no subes un listado nuevo, se utilizará automáticamente el último que hayas ingresado.</p>
+                <p>ℹ️ <strong>Nota:</strong> Sube archivo o marca uno del historial. Si omites, se usa el último de Drive automáticamente.</p>
             </div>
-            
             <% if (listados && listados.length > 0) { %>
             <div style="margin-top: 1.5rem;">
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Historial en Drive (solo lectura):</p>
-                <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.4rem;">
-                    <% listados.forEach(listado => { %>
-                        <li style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem; opacity: 0.8;">
-                            <span>📄</span> 
-                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;" title="<%= listado.name %>"><%= listado.name %></span>
-                        </li>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Historial en Drive (Marca para Reutilizar):</p>
+                <div style="display: flex; flex-direction: column; gap: 0.4rem; max-height: 150px; overflow-y: auto; padding-right: 0.5rem;">
+                    <% listados.forEach((item, index) => { %>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; padding: 0.3rem 0; border-bottom: 1px solid var(--border-color);">
+                            <input type="radio" name="listadoSelect" value="<%= item.id %>">
+                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;" title="<%= item.name %>">📄 <%= item.name %></span>
+                        </label>
                     <% }) %>
-                </ul>
+                </div>
             </div>
             <% } %>
         </div>
@@ -292,12 +286,26 @@
         <div class="card">
             <h2>📝 2. Mensaje de Texto</h2>
             <div class="form-group">
-                <textarea id="newMessageText" placeholder="Escribe el mensaje que deseas enviar a los contactos..."></textarea>
-                <button type="button" id="btnText" onclick="uploadText()">
-                    <span>Guardar Texto en Drive</span>
-                    <div class="spinner"></div>
-                </button>
+                <textarea id="newMessageText" placeholder="Escribe un mensaje nuevo aquí..."></textarea>
             </div>
+            <% if (mensajes && mensajes.length > 0) { %>
+            <div style="margin-top: 1.5rem;">
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Últimos 3 mensajes (Marca para Reutilizar):</p>
+                <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                    <% mensajes.forEach(item => { %>
+                        <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; padding: 0.4rem; background: #F9FAFB; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <input type="radio" name="mensajeSelect" value="<%= item.id %>" style="margin-top: 0.2rem;">
+                            <div style="display: flex; flex-direction: column;">
+                                <span style="font-weight: 500; font-size: 0.8rem;"><%= item.name %></span>
+                                <% if (item.description) { %>
+                                    <span style="font-size: 0.75rem; color: #666; font-style: italic;"><%= item.description %>...</span>
+                                <% } %>
+                            </div>
+                        </label>
+                    <% }) %>
+                </div>
+            </div>
+            <% } %>
         </div>
 
         <!-- Paso 3: Imagen -->
@@ -305,18 +313,33 @@
             <h2>🖼️ 3. Adjuntar Imagen (Opcional)</h2>
             <div class="form-group">
                 <input type="file" id="newImageFile" accept="image/*">
-                <button type="button" id="btnImage" onclick="uploadImage()">
-                    <span>Subir Imagen a Drive</span>
-                    <div class="spinner"></div>
-                </button>
             </div>
+            <% if (imagenes && imagenes.length > 0) { %>
+            <div style="margin-top: 1.5rem;">
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Últimas 3 imágenes (Marca para Reutilizar):</p>
+                <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                    <% imagenes.forEach(item => { %>
+                        <label style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; cursor: pointer; padding: 0.4rem; background: #F9FAFB; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <input type="radio" name="imagenSelect" value="<%= item.id %>">
+                            <% if (item.thumbnailLink) { %>
+                                <img src="<%= item.thumbnailLink %>" alt="thumb" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;">
+                            <% } else { %>
+                                <div style="width: 40px; height: 40px; background: #E5E7EB; border-radius: 4px; display: flex; align-items: center; justify-content: center;">🖼️</div>
+                            <% } %>
+                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;" title="<%= item.name %>"><%= item.name %></span>
+                        </label>
+                    <% }) %>
+                </div>
+            </div>
+            <% } %>
         </div>
         </div> <!-- Fin de steps-grid -->
 
         <!-- Paso 4: Disparar -->
-        <button class="btn-trigger" id="btnTrigger" onclick="triggerN8n()">
+        <button class="btn-trigger" id="btnTrigger" onclick="executeFlow()">
             <span>🚀 Iniciar Envío Automático</span>
             <div class="spinner"></div>
+        </button>r"></div>
         </button>
     </div>
 
@@ -332,10 +355,8 @@
             
             container.appendChild(toast);
             
-            // Animate in
             setTimeout(() => toast.classList.add('show'), 10);
             
-            // Remove after 4s
             setTimeout(() => {
                 toast.classList.remove('show');
                 setTimeout(() => toast.remove(), 300);
@@ -353,111 +374,81 @@
             }
         }
 
-        async function uploadListado() {
-            const fileInput = document.getElementById('newListadoFile');
-            if (fileInput.files.length === 0) return showToast('Selecciona un archivo Excel o CSV', true);
-            
-            toggleLoading('btnListado', true);
-            const formData = new FormData();
-            formData.append('listadoFile', fileInput.files[0]);
-
-            try {
-                const res = await fetch('/api/upload/listado', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await res.json();
-                if (data.success) {
-                    showToast('Lista subida correctamente.');
-                    setTimeout(() => location.reload(), 1500);
-                } else throw new Error(data.error);
-            } catch (err) {
-                showToast(err.message || 'Error al subir la lista', true);
-                toggleLoading('btnListado', false);
-            }
+        async function doUpload(endpoint, formData) {
+            const res = await fetch(endpoint, { method: 'POST', body: formData });
+            const data = await res.json();
+            if(!data.success) throw new Error(data.error || 'Error en subida');
         }
 
-        async function reuseFile(fileId, type, btnElement) {
-            const originalText = btnElement.innerText;
-            btnElement.innerText = 'Cargando...';
-            btnElement.disabled = true;
-
-            try {
-                const res = await fetch('/api/reuse', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fileId, type })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    showToast('Listado seleccionado como activo.');
-                    setTimeout(() => location.reload(), 1500);
-                } else throw new Error(data.error);
-            } catch (err) {
-                showToast(err.message || 'Error seleccionando archivo', true);
-                btnElement.innerText = originalText;
-                btnElement.disabled = false;
-            }
+        async function doUploadJson(endpoint, payload) {
+            const res = await fetch(endpoint, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if(!data.success) throw new Error(data.error || 'Error en subida de texto');
         }
 
-        async function uploadText() {
-            const content = document.getElementById('newMessageText').value;
-            if (!content.trim()) return showToast('El mensaje no puede estar vacío', true);
-            
-            toggleLoading('btnText', true);
-            try {
-                const res = await fetch('/api/upload/text', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ messageContent: content })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    showToast('Mensaje guardado en Drive.');
-                    document.getElementById('newMessageText').value = ''; // clear upon success
-                } else throw new Error(data.error);
-            } catch (err) {
-                showToast(err.message || 'Error al guardar el mensaje', true);
-            } finally {
-                toggleLoading('btnText', false);
-            }
+        async function doReuse(fileId, type) {
+            const res = await fetch('/api/reuse', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fileId, type })
+            });
+            const data = await res.json();
+            if(!data.success) throw new Error(data.error || `Error reutilizando ${type}`);
         }
 
-        async function uploadImage() {
-            const fileInput = document.getElementById('newImageFile');
-            if (fileInput.files.length === 0) return showToast('Selecciona una imagen primero', true);
-            
-            toggleLoading('btnImage', true);
-            const formData = new FormData();
-            formData.append('imageFile', fileInput.files[0]);
-
-            try {
-                const res = await fetch('/api/upload/image', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await res.json();
-                if (data.success) {
-                    showToast('Imagen subida correctamente.');
-                    fileInput.value = ''; // clear upon success
-                } else throw new Error(data.error);
-            } catch (err) {
-                showToast(err.message || 'Error al subir la imagen', true);
-            } finally {
-                toggleLoading('btnImage', false);
-            }
-        }
-
-        async function triggerN8n() {
+        async function executeFlow() {
             toggleLoading('btnTrigger', true);
             try {
+                // 1. Listado
+                const listadoFile = document.getElementById('newListadoFile').files[0];
+                const listadoChecked = document.querySelector('input[name="listadoSelect"]:checked');
+                if (listadoFile) {
+                    showToast('Subiendo nuevo listado...');
+                    const fd = new FormData(); fd.append('listadoFile', listadoFile);
+                    await doUpload('/api/upload/listado', fd);
+                } else if (listadoChecked) {
+                    showToast('Reutilizando listado...');
+                    await doReuse(listadoChecked.value, 'listado');
+                }
+
+                // 2. Texto
+                const textContent = document.getElementById('newMessageText').value;
+                const textChecked = document.querySelector('input[name="mensajeSelect"]:checked');
+                if (textContent.trim()) {
+                    showToast('Guardando nuevo mensaje...');
+                    await doUploadJson('/api/upload/text', { messageContent: textContent });
+                } else if (textChecked) {
+                    showToast('Reutilizando mensaje...');
+                    await doReuse(textChecked.value, 'message');
+                }
+
+                // 3. Imagen
+                const imageFile = document.getElementById('newImageFile').files[0];
+                const imageChecked = document.querySelector('input[name="imagenSelect"]:checked');
+                if (imageFile) {
+                    showToast('Subiendo nueva imagen...');
+                    const fd = new FormData(); fd.append('imageFile', imageFile);
+                    await doUpload('/api/upload/image', fd);
+                } else if (imageChecked) {
+                    showToast('Reutilizando imagen...');
+                    await doReuse(imageChecked.value, 'image');
+                }
+
+                // 4. Trigger n8n
+                showToast('🚀 Llamando a n8n...');
                 const res = await fetch('/api/trigger', { method: 'POST' });
                 const data = await res.json();
                 if (data.success) {
                     showToast(data.message);
+                    setTimeout(() => location.reload(), 2000);
                 } else throw new Error(data.error);
+
             } catch (err) {
-                showToast(err.message || 'Error de conexión con n8n', true);
+                showToast(err.message || 'Error durante el flujo', true);
             } finally {
                 toggleLoading('btnTrigger', false);
             }

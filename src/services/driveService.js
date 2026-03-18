@@ -52,21 +52,34 @@ function checkInit() {
     if (!isInitialized) throw new Error('NOT_AUTHENTICATED');
 }
 
-async function uploadFile(file, type, customName = null) {
-    checkInit();
-    let folderId;
-    if (type === 'message') folderId = FOLDER_MESSAGE;
-    else if (type === 'image') folderId = FOLDER_IMAGE;
-    else if (type === 'listado') folderId = FOLDER_LISTADO;
-    
-    const fileMetadata = {
-        name: customName || file.originalname,
-        parents: [folderId],
-    };
-
-    if (type === 'message' && !fileMetadata.name.endsWith('.txt')) {
-        fileMetadata.name += '.txt';
+function getFolderId(type) {
+    switch (type) {
+        case 'message':
+            return FOLDER_MESSAGE;
+        case 'image':
+            return FOLDER_IMAGE;
+        case 'listado':
+            return FOLDER_LISTADO;
+        return null;
     }
+}
+
+async function uploadFile(file, type, customName = null, description = '') {
+    checkInit();
+    const folderId = getFolderId(type);
+    if (!folderId) throw new Error(`Carpeta destino no configurada para el tipo: ${type}`);
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    let fileName = customName || file.originalname || `${type}_${timestamp}`;
+    if (type === 'message' && !fileName.endsWith('.txt')) {
+        fileName += '.txt';
+    }
+
+    const fileMetadata = {
+        name: fileName,
+        parents: [folderId],
+        description: description
+    };
 
     const media = {
         mimeType: file.mimetype,
@@ -86,6 +99,7 @@ async function createTextFile(content, fileName = `Mensaje_${Date.now()}.txt`) {
     const fileMetadata = {
         name: fileName,
         parents: [FOLDER_MESSAGE],
+        description: content.substring(0, 120)
     };
 
     const media = {
@@ -117,7 +131,7 @@ async function listRecentFiles(type, pageSize = 10) {
         q: `'${folderId}' in parents and trashed=false`,
         orderBy: 'createdTime desc',
         pageSize: pageSize,
-        fields: 'files(id, name, createdTime, mimeType, webViewLink)',
+        fields: 'files(id, name, createdTime, mimeType, webViewLink, thumbnailLink, description)',
     });
     return response.data.files;
 }
