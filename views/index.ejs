@@ -3,278 +3,584 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Whatsapp Masivo</title>
-    <!-- Use Inter font for a clean, modern look -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>WhatsApp Masivo — Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #25D366; /* WhatsApp brand */
-            --primary-hover: #1EBE5D;
-            --bg-color: #FAFAFA;
-            --card-bg: #FFFFFF;
-            --text-dark: #1F2937;
-            --text-muted: #6B7280;
-            --border-color: #E5E7EB;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
-            --radius-md: 12px;
-            --radius-lg: 16px;
+            --green: #25D366;
+            --green-glow: rgba(37, 211, 102, 0.35);
+            --green-soft: rgba(37, 211, 102, 0.12);
+            --green-dark: #1aab52;
+            --bg: #0a0d12;
+            --bg-2: #111520;
+            --surface: rgba(255,255,255,0.04);
+            --surface-hover: rgba(255,255,255,0.07);
+            --border: rgba(255,255,255,0.08);
+            --border-focus: rgba(37, 211, 102, 0.5);
+            --text: #e8edf5;
+            --text-muted: #6b7a99;
+            --text-subtle: #3f4b61;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow-glow: 0 0 40px rgba(37, 211, 102, 0.08);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-dark);
+            background-color: var(--bg);
+            color: var(--text);
             -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 2rem 1rem;
+            align-items: flex-start;
+            padding: 3rem 1.5rem;
+            background-image:
+                radial-gradient(ellipse 80% 50% at 50% -10%, rgba(37, 211, 102, 0.08) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(37, 100, 200, 0.05) 0%, transparent 60%);
         }
 
         .container {
             width: 100%;
-            max-width: 1100px;
+            max-width: 1120px;
             display: flex;
             flex-direction: column;
-            gap: 2rem;
+            gap: 2.5rem;
         }
 
-        .steps-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            align-items: start;
-        }
-
+        /* ─── Header ─── */
         .header {
             text-align: center;
-            margin-bottom: 0.5rem;
+            animation: fadeDown 0.6s ease both;
         }
 
-        .header h1 {
-            font-size: 1.75rem;
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--green-soft);
+            border: 1px solid rgba(37,211,102,0.2);
+            border-radius: 999px;
+            padding: 0.35rem 1rem;
+            font-size: 0.78rem;
             font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.025em;
+            color: var(--green);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
+        }
+
+        .header-badge span { font-size: 0.9rem; }
+
+        .header h1 {
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            color: var(--text);
+            line-height: 1.15;
+            margin-bottom: 0.75rem;
+        }
+
+        .header h1 em {
+            font-style: normal;
+            background: linear-gradient(135deg, #25D366, #7FFFB3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .header p {
             color: var(--text-muted);
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 400;
+            max-width: 420px;
+            margin: 0 auto;
+            line-height: 1.6;
         }
 
-        /* Glass / Clean Cards */
+        /* ─── Grid ─── */
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+            gap: 1.25rem;
+            align-items: start;
+        }
+
+        /* ─── Cards ─── */
         .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: 2rem;
-            box-shadow: var(--shadow-md);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.75rem;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+            animation: fadeUp 0.5s ease both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(37,211,102,0.3), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .card:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-2px);
+            border-color: rgba(37,211,102,0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4), var(--shadow-glow);
+        }
+
+        .card:hover::before { opacity: 1; }
+
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+
+        /* ─── Card Header ─── */
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon {
+            width: 42px;
+            height: 42px;
+            background: var(--green-soft);
+            border: 1px solid rgba(37,211,102,0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            flex-shrink: 0;
+        }
+
+        .card-step {
+            font-size: 0.68rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--green);
+            margin-bottom: 0.1rem;
         }
 
         .card h2 {
-            font-size: 1.15rem;
-            font-weight: 500;
-            margin-bottom: 1.25rem;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 0;
         }
 
+        /* ─── Form Elements ─── */
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 0.6rem;
         }
 
         label {
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             font-weight: 500;
             color: var(--text-muted);
         }
 
         textarea, input[type="file"] {
             width: 100%;
-            padding: 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
+            padding: 0.85rem 1rem;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
             font-family: 'Inter', sans-serif;
-            font-size: 0.95rem;
-            color: var(--text-dark);
-            transition: border-color 0.2s, box-shadow 0.2s;
-            background-color: #F9FAFB;
+            font-size: 0.9rem;
+            color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
         }
 
         textarea {
             resize: vertical;
             min-height: 120px;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
         textarea:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
-            background-color: #FFFFFF;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.08);
+            background: rgba(255,255,255,0.05);
         }
 
-        /* Input file styling */
+        textarea::placeholder { color: var(--text-subtle); }
+
+        input[type="file"] {
+            cursor: pointer;
+        }
+
         input[type="file"]::file-selector-button {
             border: none;
-            background: #E5E7EB;
-            padding: 0.5rem 1rem;
+            background: rgba(37,211,102,0.12);
+            color: var(--green);
+            padding: 0.45rem 0.9rem;
             border-radius: 6px;
-            color: var(--text-dark);
+            font-size: 0.8rem;
+            font-weight: 600;
             cursor: pointer;
-            font-weight: 500;
             transition: background 0.2s;
-            margin-right: 1rem;
+            margin-right: 0.75rem;
+            font-family: 'Inter', sans-serif;
         }
 
         input[type="file"]::file-selector-button:hover {
-            background: #D1D5DB;
+            background: rgba(37,211,102,0.22);
         }
 
-        /* Buttons */
-        button {
-            background-color: var(--text-dark);
-            color: #FFFFFF;
-            border: none;
-            padding: 0.875rem 1.5rem;
-            border-radius: var(--radius-md);
-            font-size: 0.95rem;
-            font-weight: 500;
+        /* ─── Info Box ─── */
+        .info-box {
+            margin-top: 1rem;
+            padding: 0.75rem 0.9rem;
+            background: rgba(255,255,255,0.025);
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-left: 2px solid var(--text-subtle);
+            line-height: 1.5;
+        }
+
+        /* ─── History Section ─── */
+        .history-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-subtle);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 1.25rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            max-height: 160px;
+            overflow-y: auto;
+            padding-right: 0.25rem;
+        }
+
+        .history-list::-webkit-scrollbar { width: 4px; }
+        .history-list::-webkit-scrollbar-track { background: transparent; }
+        .history-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.82rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            padding: 0.55rem 0.75rem;
+            background: rgba(255,255,255,0.025);
+            border-radius: 8px;
+            border: 1px solid transparent;
+            transition: border-color 0.2s, background 0.2s;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .history-item:hover {
+            background: rgba(37,211,102,0.06);
+            border-color: rgba(37,211,102,0.15);
+            color: var(--text);
+        }
+
+        .history-item input[type="radio"] {
+            accent-color: var(--green);
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+        }
+
+        .history-item span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-item .item-name {
+            font-weight: 500;
+            font-size: 0.82rem;
+            color: var(--text);
+        }
+
+        .history-item .item-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .history-item img {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+        }
+
+        .thumb-placeholder {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        /* ─── Trigger Button ─── */
+        .btn-trigger {
+            background: linear-gradient(135deg, #25D366 0%, #1db855 100%);
+            color: #fff;
+            border: none;
+            padding: 1.1rem 2rem;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-top: 0.5rem;
+            gap: 0.5rem;
+            letter-spacing: -0.01em;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 24px var(--green-glow);
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp 0.5s 0.4s ease both;
         }
 
-        button:hover {
-            background-color: #000000;
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-trigger {
-            background-color: var(--primary);
-            color: white;
-            font-size: 1.1rem;
-            font-weight: 600;
-            padding: 1.2rem;
-            border-radius: var(--radius-lg);
-            margin-top: 1rem;
-            box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
+        .btn-trigger::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
+            opacity: 0;
+            transition: opacity 0.2s;
         }
 
         .btn-trigger:hover {
-            background-color: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 36px var(--green-glow);
         }
 
-        /* Toast Notifications */
+        .btn-trigger:hover::after { opacity: 1; }
+
+        .btn-trigger:active { transform: translateY(-1px); }
+
+        /* ─── Email Toggle ─── */
+        .email-toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.025);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.4rem;
+            animation: fadeUp 0.5s 0.35s ease both;
+            transition: border-color 0.2s;
+        }
+
+        .email-toggle-row:has(#sendEmailToggle:checked) {
+            border-color: rgba(37,211,102,0.25);
+            background: rgba(37,211,102,0.04);
+        }
+
+        .email-toggle-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .email-toggle-icon {
+            font-size: 1.3rem;
+        }
+
+        .email-toggle-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+
+        .email-toggle-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .email-toggle-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input { display: none; }
+
+        .toggle-track {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.08);
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .toggle-track::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 16px;
+            height: 16px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .toggle-switch input:checked + .toggle-track {
+            background: var(--green);
+            border-color: var(--green-dark);
+        }
+
+        .toggle-switch input:checked + .toggle-track::after {
+            transform: translateX(20px);
+            background: #fff;
+        }
+
+        /* ─── Toast Notifications ─── */
         .toast-container {
             position: fixed;
             bottom: 2rem;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 50;
+            z-index: 9999;
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
+            pointer-events: none;
         }
 
         .toast {
-            background: #FFFFFF;
-            color: var(--text-dark);
-            padding: 1rem 1.5rem;
-            border-radius: 50px;
-            box-shadow: var(--shadow-lg);
-            font-size: 0.9rem;
+            background: rgba(17, 21, 32, 0.95);
+            backdrop-filter: blur(20px);
+            color: var(--text);
+            padding: 0.9rem 1.4rem;
+            border-radius: 999px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px var(--border);
+            font-size: 0.875rem;
             font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.6rem;
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(16px) scale(0.97);
             transition: opacity 0.3s ease, transform 0.3s ease;
-            border: 1px solid var(--border-color);
         }
 
         .toast.show {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
         }
 
-        .toast.success { border-left: 4px solid var(--primary); }
-        .toast.error { border-left: 4px solid #ef4444; }
+        .toast.success { border-left: 3px solid var(--green); }
+        .toast.error { border-left: 3px solid #f87171; }
 
-        /* Loader */
+        /* ─── Spinner ─── */
         .spinner {
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 2.5px solid rgba(255,255,255,0.2);
             border-radius: 50%;
-            border-top: 2px solid white;
-            width: 16px;
-            height: 16px;
-            animation: spin 1s linear infinite;
+            border-top-color: #fff;
+            width: 18px;
+            height: 18px;
+            animation: spin 0.75s linear infinite;
             display: none;
-            margin-left: 8px;
         }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        button.loading span { display: none; }
+        button.loading .btn-label { display: none; }
         button.loading .spinner { display: inline-block; }
 
+        /* ─── Animations ─── */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
+
+        <!-- Header -->
         <div class="header">
-            <h1>Envío Masivo</h1>
-            <p>Configura el contenido y dispara el flujo</p>
+            <div class="header-badge">
+                <span>💬</span> WhatsApp Masivo
+            </div>
+            <h1>Envío <em>Masivo</em></h1>
+            <p>Configura el contenido, selecciona tu audiencia y dispara el flujo con un clic.</p>
         </div>
 
         <div class="steps-grid">
+
         <!-- Paso 1: Lista -->
         <div class="card">
-            <h2>👥 1. Lista de Contactos</h2>
+            <div class="card-header">
+                <div class="card-icon">👥</div>
+                <div class="card-title-group">
+                    <div class="card-step">Paso 01</div>
+                    <h2>Lista de Contactos</h2>
+                </div>
+            </div>
             <div class="form-group">
                 <label>Subir Nuevo Listado (Excel o CSV)</label>
                 <input type="file" id="newListadoFile" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
             </div>
-            <div style="margin-top: 1.2rem; padding: 0.8rem; background: #F3F4F6; border-radius: 8px; font-size: 0.85rem; color: #4B5563; border-left: 3px solid #6B7280;">
-                <p>ℹ️ <strong>Nota:</strong> Sube archivo o marca uno del historial. Si omites, se usa el último de Drive automáticamente.</p>
+            <div class="info-box">
+                ℹ️ <strong>Nota:</strong> Sube un archivo o selecciona uno del historial. Si omites, se usa el último de Drive automáticamente.
             </div>
             <% if (listados && listados.length > 0) { %>
-            <div style="margin-top: 1.5rem;">
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Historial en Drive (Marca para Reutilizar):</p>
-                <div style="display: flex; flex-direction: column; gap: 0.4rem; max-height: 150px; overflow-y: auto; padding-right: 0.5rem;">
+            <div>
+                <p class="history-label">Historial en Drive · Marca para Reutilizar</p>
+                <div class="history-list">
                     <% listados.forEach((item, index) => { %>
-                        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; padding: 0.3rem 0; border-bottom: 1px solid var(--border-color);">
+                        <label class="history-item">
                             <input type="radio" name="listadoSelect" value="<%= item.id %>">
-                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;" title="<%= item.name %>">📄 <%= item.name %></span>
+                            <span title="<%= item.name %>">📄 <%= item.name %></span>
                         </label>
                     <% }) %>
                 </div>
@@ -284,21 +590,27 @@
 
         <!-- Paso 2: Texto -->
         <div class="card">
-            <h2>📝 2. Mensaje de Texto</h2>
+            <div class="card-header">
+                <div class="card-icon">📝</div>
+                <div class="card-title-group">
+                    <div class="card-step">Paso 02</div>
+                    <h2>Mensaje de Texto</h2>
+                </div>
+            </div>
             <div class="form-group">
                 <textarea id="newMessageText" placeholder="Escribe un mensaje nuevo aquí..."></textarea>
             </div>
             <% if (mensajes && mensajes.length > 0) { %>
-            <div style="margin-top: 1.5rem;">
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Últimos 3 mensajes (Marca para Reutilizar):</p>
-                <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+            <div>
+                <p class="history-label">Últimos mensajes · Marca para Reutilizar</p>
+                <div class="history-list">
                     <% mensajes.forEach(item => { %>
-                        <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; padding: 0.4rem; background: #F9FAFB; border-radius: 6px; border: 1px solid var(--border-color);">
-                            <input type="radio" name="mensajeSelect" value="<%= item.id %>" style="margin-top: 0.2rem;">
-                            <div style="display: flex; flex-direction: column;">
-                                <span style="font-weight: 500; font-size: 0.8rem;"><%= item.name %></span>
+                        <label class="history-item" style="align-items: flex-start;">
+                            <input type="radio" name="mensajeSelect" value="<%= item.id %>" style="margin-top: 3px;">
+                            <div style="display: flex; flex-direction: column; min-width: 0;">
+                                <span class="item-name"><%= item.name %></span>
                                 <% if (item.description) { %>
-                                    <span style="font-size: 0.75rem; color: #666; font-style: italic;"><%= item.description %>...</span>
+                                    <span class="item-desc"><%= item.description %>...</span>
                                 <% } %>
                             </div>
                         </label>
@@ -310,37 +622,59 @@
 
         <!-- Paso 3: Imagen -->
         <div class="card">
-            <h2>🖼️ 3. Adjuntar Imagen (Opcional)</h2>
+            <div class="card-header">
+                <div class="card-icon">🖼️</div>
+                <div class="card-title-group">
+                    <div class="card-step">Paso 03 · Opcional</div>
+                    <h2>Adjuntar Imagen</h2>
+                </div>
+            </div>
             <div class="form-group">
                 <input type="file" id="newImageFile" accept="image/*">
             </div>
             <% if (imagenes && imagenes.length > 0) { %>
-            <div style="margin-top: 1.5rem;">
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Últimas 3 imágenes (Marca para Reutilizar):</p>
-                <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+            <div>
+                <p class="history-label">Últimas imágenes · Marca para Reutilizar</p>
+                <div class="history-list">
                     <% imagenes.forEach(item => { %>
-                        <label style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; cursor: pointer; padding: 0.4rem; background: #F9FAFB; border-radius: 6px; border: 1px solid var(--border-color);">
+                        <label class="history-item">
                             <input type="radio" name="imagenSelect" value="<%= item.id %>">
                             <% if (item.thumbnailLink) { %>
-                                <img src="<%= item.thumbnailLink %>" alt="thumb" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;">
+                                <img src="<%= item.thumbnailLink %>" alt="thumb">
                             <% } else { %>
-                                <div style="width: 40px; height: 40px; background: #E5E7EB; border-radius: 4px; display: flex; align-items: center; justify-content: center;">🖼️</div>
+                                <div class="thumb-placeholder">🖼️</div>
                             <% } %>
-                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;" title="<%= item.name %>"><%= item.name %></span>
+                            <span title="<%= item.name %>"><%= item.name %></span>
                         </label>
                     <% }) %>
                 </div>
             </div>
             <% } %>
         </div>
+
         </div> <!-- Fin de steps-grid -->
+
+        <!-- Toggle: también enviar por email -->
+        <div class="email-toggle-row">
+            <div class="email-toggle-info">
+                <span class="email-toggle-icon">✉️</span>
+                <div class="email-toggle-text">
+                    <span class="email-toggle-title">Enviar también por correo</span>
+                    <span class="email-toggle-sub">El mensaje se enviará por WhatsApp. Activa para incluir email.</span>
+                </div>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="sendEmailToggle">
+                <span class="toggle-track"></span>
+            </label>
+        </div>
 
         <!-- Paso 4: Disparar -->
         <button class="btn-trigger" id="btnTrigger" onclick="executeFlow()">
-            <span>🚀 Iniciar Envío Automático</span>
+            <span class="btn-label">Iniciar Envío Automático</span>
             <div class="spinner"></div>
-        </button>r"></div>
         </button>
+
     </div>
 
     <!-- Contenedor de Toasts -->
@@ -439,8 +773,14 @@
                 }
 
                 // 4. Trigger n8n
+                const sendEmail = document.getElementById('sendEmailToggle').checked;
+
                 showToast('🚀 Llamando a n8n...');
-                const res = await fetch('/api/trigger', { method: 'POST' });
+                const res = await fetch('/api/trigger', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sendEmail })
+                });
                 const data = await res.json();
                 if (data.success) {
                     showToast(data.message);

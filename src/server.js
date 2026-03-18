@@ -118,15 +118,26 @@ app.post('/api/reuse', requireAuth, async (req, res) => {
 app.post('/api/trigger', requireAuth, async (req, res) => {
     if (!N8N_WEBHOOK_URL) return res.status(500).json({ error: 'URL del webhook no configurada' });
     try {
-        const response = await axios.post(N8N_WEBHOOK_URL, {
+        const sendEmail = req.body.sendEmail === true || req.body.sendEmail === 'true';
+        const payload = {
             triggeredBy: 'Node.js Dashboard',
-            timestamp: new Date().toISOString()
-        });
+            timestamp:   new Date().toISOString(),
+            sendEmail:   sendEmail
+        };
+        console.log(`[trigger] POST → ${N8N_WEBHOOK_URL}`);
+        console.log(`[trigger] Payload:`, JSON.stringify(payload));
+        const response = await axios.post(N8N_WEBHOOK_URL, payload, { timeout: 15000 });
+        console.log(`[trigger] n8n respondió con status ${response.status}:`, response.data);
         res.json({ success: true, message: '¡Envío masivo iniciado con éxito en n8n!', data: response.data });
     } catch (error) {
-        const details = error.response ? error.response.data : error.message;
-        console.error('Error al contactar con n8n:', details);
-        res.status(500).json({ error: 'Error de conexión con n8n: ' + JSON.stringify(details) });
+        if (error.code === 'ECONNABORTED') {
+            console.error('[trigger] Timeout: n8n no respondió en 15s');
+            return res.status(504).json({ error: 'Timeout: n8n no respondió. ¿Está activo el webhook en n8n?' });
+        }
+        const status  = error.response?.status;
+        const details = error.response?.data ?? error.message;
+        console.error(`[trigger] Error ${status ?? ''}:`, details);
+        res.status(500).json({ error: `Error n8n (${status ?? 'sin respuesta'}): ` + JSON.stringify(details) });
     }
 });
 
