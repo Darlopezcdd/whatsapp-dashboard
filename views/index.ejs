@@ -442,6 +442,45 @@
             background: rgba(37, 211, 102, 0.04);
         }
 
+        /* ─── Email Subject ─── */
+        .email-subject-wrap {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease;
+            margin-top: 0;
+        }
+
+        .email-subject-wrap.visible {
+            max-height: 80px;
+            opacity: 1;
+            margin-top: 0.75rem;
+        }
+
+        .email-subject-wrap input[type="text"] {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            box-sizing: border-box;
+        }
+
+        .email-subject-wrap input[type="text"]:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.08);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .email-subject-wrap input[type="text"]::placeholder {
+            color: var(--text-subtle);
+        }
+
         .email-toggle-info {
             display: flex;
             align-items: center;
@@ -739,9 +778,14 @@
                 </div>
             </div>
             <label class="toggle-switch">
-                <input type="checkbox" id="sendEmailToggle">
+                <input type="checkbox" id="sendEmailToggle" onchange="toggleSubject(this)">
                 <span class="toggle-track"></span>
             </label>
+        </div>
+
+        <!-- Asunto del correo (visible solo si el toggle está activo) -->
+        <div class="email-subject-wrap" id="emailSubjectWrap">
+            <input type="text" id="emailSubject" placeholder="Asunto del correo electrónico...">
         </div>
 
         <!-- Paso 4: Disparar -->
@@ -782,6 +826,17 @@
                 }
             });
         })();
+
+        function toggleSubject(checkbox) {
+            const wrap = document.getElementById('emailSubjectWrap');
+            if (checkbox.checked) {
+                wrap.classList.add('visible');
+                document.getElementById('emailSubject').focus();
+            } else {
+                wrap.classList.remove('visible');
+                document.getElementById('emailSubject').value = '';
+            }
+        }
 
         function showToast(message, isError = false) {
             const container = document.getElementById('toastContainer');
@@ -876,12 +931,13 @@
 
                 // 4. Trigger n8n
                 const sendEmail = document.getElementById('sendEmailToggle').checked;
+                const emailSubject = document.getElementById('emailSubject').value.trim();
 
                 showToast('Iniciando envío...');
                 const res = await fetch('/api/trigger', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ sendEmail })
+                    body: JSON.stringify({ sendEmail, emailSubject })
                 });
                 const data = await res.json();
                 if (data.success) {
