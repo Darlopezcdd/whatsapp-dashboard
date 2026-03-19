@@ -50,13 +50,14 @@ app.get('/oauth2callback', async (req, res) => {
 
 app.get('/', requireAuth, async (req, res) => {
     try {
-        const listados = await driveService.listRecentFiles('listado', 15);
-        const mensajes = await driveService.listRecentFiles('message', 3);
-        const imagenes = await driveService.listRecentFiles('image', 3);
+        const isOriginal = f => !f.name.startsWith('Reutilizado_');
+        const listados = (await driveService.listRecentFiles('listado', 15) || []).filter(isOriginal);
+        const mensajes = (await driveService.listRecentFiles('message', 3) || []).filter(isOriginal);
+        const imagenes = (await driveService.listRecentFiles('image', 3) || []).filter(isOriginal);
         res.render('index', {
-            listados: listados || [],
-            mensajes: mensajes || [],
-            imagenes: imagenes || [],
+            listados,
+            mensajes,
+            imagenes,
             error: null,
             success: null
         });
@@ -119,10 +120,12 @@ app.post('/api/trigger', requireAuth, async (req, res) => {
     if (!N8N_WEBHOOK_URL) return res.status(500).json({ error: 'URL del webhook no configurada' });
     try {
         const sendEmail = req.body.sendEmail === true || req.body.sendEmail === 'true';
+        const emailSubject = req.body.emailSubject || '';
         const payload = {
             triggeredBy: 'Node.js Dashboard',
             timestamp: new Date().toISOString(),
-            sendEmail: sendEmail
+            sendEmail: sendEmail,
+            emailSubject: emailSubject
         };
         console.log(`[trigger] POST → ${N8N_WEBHOOK_URL}`);
         console.log(`[trigger] Payload:`, JSON.stringify(payload));
