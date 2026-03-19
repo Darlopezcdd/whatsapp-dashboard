@@ -53,7 +53,7 @@ app.get('/', requireAuth, async (req, res) => {
         const listados = await driveService.listRecentFiles('listado', 15);
         const mensajes = await driveService.listRecentFiles('message', 3);
         const imagenes = await driveService.listRecentFiles('image', 3);
-        res.render('index', { 
+        res.render('index', {
             listados: listados || [],
             mensajes: mensajes || [],
             imagenes: imagenes || [],
@@ -81,8 +81,8 @@ app.post('/api/upload/image', requireAuth, upload.single('imageFile'), async (re
 app.post('/api/upload/text', requireAuth, upload.single('textFile'), async (req, res) => {
     try {
         if (req.body.messageContent) {
-           const result = await driveService.createTextFile(req.body.messageContent);
-           return res.json({ success: true, file: result });
+            const result = await driveService.createTextFile(req.body.messageContent);
+            return res.json({ success: true, file: result });
         }
         if (req.file) {
             const result = await driveService.uploadFile(req.file, 'message');
@@ -121,20 +121,20 @@ app.post('/api/trigger', requireAuth, async (req, res) => {
         const sendEmail = req.body.sendEmail === true || req.body.sendEmail === 'true';
         const payload = {
             triggeredBy: 'Node.js Dashboard',
-            timestamp:   new Date().toISOString(),
-            sendEmail:   sendEmail
+            timestamp: new Date().toISOString(),
+            sendEmail: sendEmail
         };
         console.log(`[trigger] POST → ${N8N_WEBHOOK_URL}`);
         console.log(`[trigger] Payload:`, JSON.stringify(payload));
         const response = await axios.post(N8N_WEBHOOK_URL, payload, { timeout: 15000 });
         console.log(`[trigger] n8n respondió con status ${response.status}:`, response.data);
-        res.json({ success: true, message: '¡Envío masivo iniciado con éxito en n8n!', data: response.data });
+        res.json({ success: true, message: '¡Envío masivo iniciado con éxito!', data: response.data });
     } catch (error) {
         if (error.code === 'ECONNABORTED') {
             console.error('[trigger] Timeout: n8n no respondió en 15s');
             return res.status(504).json({ error: 'Timeout: n8n no respondió. ¿Está activo el webhook en n8n?' });
         }
-        const status  = error.response?.status;
+        const status = error.response?.status;
         const details = error.response?.data ?? error.message;
         console.error(`[trigger] Error ${status ?? ''}:`, details);
         res.status(500).json({ error: `Error n8n (${status ?? 'sin respuesta'}): ` + JSON.stringify(details) });

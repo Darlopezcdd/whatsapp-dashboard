@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,13 +12,19 @@
             --green-glow: rgba(37, 211, 102, 0.3);
             --green-soft: rgba(37, 211, 102, 0.1);
             --bg: #0a0d12;
-            --surface: rgba(255,255,255,0.04);
-            --border: rgba(255,255,255,0.08);
+            --surface: rgba(255, 255, 255, 0.04);
+            --border: rgba(255, 255, 255, 0.08);
             --text: #e8edf5;
             --text-muted: #6b7a99;
         }
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -47,16 +54,18 @@
             position: relative;
             overflow: hidden;
             animation: fadeUp 0.6s ease both;
-            box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
         }
 
         /* Subtle top glow line */
         .login-card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(37,211,102,0.4), transparent);
+            background: linear-gradient(90deg, transparent, rgba(37, 211, 102, 0.4), transparent);
         }
 
         /* App icon */
@@ -64,7 +73,7 @@
             width: 68px;
             height: 68px;
             background: var(--green-soft);
-            border: 1px solid rgba(37,211,102,0.25);
+            border: 1px solid rgba(37, 211, 102, 0.25);
             border-radius: 20px;
             display: flex;
             align-items: center;
@@ -115,7 +124,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
             opacity: 0;
             transition: opacity 0.2s;
         }
@@ -125,9 +134,13 @@
             box-shadow: 0 8px 30px var(--green-glow);
         }
 
-        .btn-google:hover::after { opacity: 1; }
+        .btn-google:hover::after {
+            opacity: 1;
+        }
 
-        .btn-google:active { transform: translateY(0); }
+        .btn-google:active {
+            transform: translateY(0);
+        }
 
         /* Google G icon */
         .btn-google .g-icon {
@@ -141,11 +154,19 @@
         }
 
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
+
 <body>
 
     <div class="login-card">
@@ -162,4 +183,5 @@
     </div>
 
 </body>
+
 </html>

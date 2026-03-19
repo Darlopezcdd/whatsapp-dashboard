@@ -756,6 +756,33 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
+        // Allow deselecting radio buttons by clicking the already-selected row
+        (function () {
+            // Track which radio was already checked before each click, keyed by name
+            const prevChecked = {};
+
+            document.addEventListener('mousedown', function (e) {
+                const label = e.target.closest('label.history-item');
+                if (label) {
+                    const radio = label.querySelector('input[type="radio"]');
+                    if (radio) {
+                        prevChecked[radio.name] = radio.checked ? radio : null;
+                    }
+                }
+            });
+
+            document.addEventListener('click', function (e) {
+                const label = e.target.closest('label.history-item');
+                if (label) {
+                    const radio = label.querySelector('input[type="radio"]');
+                    if (radio && prevChecked[radio.name] === radio) {
+                        radio.checked = false;
+                        prevChecked[radio.name] = null;
+                    }
+                }
+            });
+        })();
+
         function showToast(message, isError = false) {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
