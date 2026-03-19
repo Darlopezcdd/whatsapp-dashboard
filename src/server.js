@@ -119,10 +119,12 @@ app.post('/api/trigger', requireAuth, async (req, res) => {
     if (!N8N_WEBHOOK_URL) return res.status(500).json({ error: 'URL del webhook no configurada' });
     try {
         const sendEmail = req.body.sendEmail === true || req.body.sendEmail === 'true';
+        const emailSubject = req.body.emailSubject || '';
         const payload = {
             triggeredBy: 'Node.js Dashboard',
             timestamp: new Date().toISOString(),
-            sendEmail: sendEmail
+            sendEmail: sendEmail,
+            emailSubject: emailSubject
         };
         console.log(`[trigger] POST → ${N8N_WEBHOOK_URL}`);
         console.log(`[trigger] Payload:`, JSON.stringify(payload));
