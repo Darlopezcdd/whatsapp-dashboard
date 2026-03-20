@@ -1067,6 +1067,23 @@
                 }
             }
         }
+
+        // ── Init: check status on page load ────────────────────────
+        async function initStatusCheck() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                if (data.state === 'running') {
+                    // Workflow was already running before page load — lock button and resume polling
+                    toggleLoading('btnTrigger', true);
+                    startStatusPolling();
+                } else if (data.state === 'done' || data.state === 'error') {
+                    updateStatusBanner(data);
+                }
+            } catch (_) { /* ignore */ }
+        }
+
+        initStatusCheck();
     </script>
 </body>
 
