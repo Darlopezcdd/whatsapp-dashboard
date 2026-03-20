@@ -646,9 +646,17 @@
         }
 
         @keyframes pulse-ring {
-            0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.35); }
-            70% { box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
+            0% {
+                box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.35);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(251, 191, 36, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(251, 191, 36, 0);
+            }
         }
 
         /* ─── Status Banner ─── */
@@ -698,15 +706,20 @@
         .running .status-dot {
             background: #fbbf24;
             animation: spin 1s linear infinite;
-            border: 2px solid rgba(251,191,36,0.3);
+            border: 2px solid rgba(251, 191, 36, 0.3);
             border-top-color: #fbbf24;
             border-radius: 50%;
             width: 14px;
             height: 14px;
         }
 
-        .done .status-dot { background: var(--green); }
-        .error .status-dot { background: #f87171; }
+        .done .status-dot {
+            background: var(--green);
+        }
+
+        .error .status-dot {
+            background: #f87171;
+        }
     </style>
 </head>
 
