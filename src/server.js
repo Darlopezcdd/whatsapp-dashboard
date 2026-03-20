@@ -8,6 +8,14 @@ const driveService = require('./services/driveService');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL;
+const WORKFLOW_CALLBACK_TOKEN = process.env.WORKFLOW_CALLBACK_TOKEN || null;
+
+// ── Workflow status (in-memory) ──────────────────────────────────────────────
+let workflowStatus = { state: 'idle', message: '', updatedAt: null };
+function setStatus(state, message) {
+    workflowStatus = { state, message, updatedAt: new Date().toISOString() };
+    console.log(`[status] ${state}: ${message}`);
+}
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -65,6 +73,24 @@ app.get('/', requireAuth, async (req, res) => {
         console.error("View Error:", error);
         res.render('index', { listados: [], mensajes: [], imagenes: [], error: 'Error interno o de conexión de Google: ' + error.message, success: null });
     }
+});
+
+// --- Status Endpoints ---
+
+// Frontend polls this to know if n8n is still running
+app.get('/api/status', requireAuth, (req, res) => {
+    res.json(workflowStatus);
+});
+
+// n8n calls this at the end of the workflow to signal completion
+app.post('/api/workflow-done', (req, res) => {
+    const { status, message, token } = req.body;
+    if (WORKFLOW_CALLBACK_TOKEN && token !== WORKFLOW_CALLBACK_TOKEN) {
+        return res.status(401).json({ error: 'Token inválido' });
+    }
+    const isError = status === 'error';
+    setStatus(isError ? 'error' : 'done', message || (isError ? 'El flujo terminó con errores' : '¡Envío completado exitosamente!'));
+    res.json({ received: true });
 });
 
 // --- API Endpoints ---
@@ -129,17 +155,20 @@ app.post('/api/trigger', requireAuth, async (req, res) => {
         };
         console.log(`[trigger] POST → ${N8N_WEBHOOK_URL}`);
         console.log(`[trigger] Payload:`, JSON.stringify(payload));
+        setStatus('running', 'Flujo en ejecución...');
         const response = await axios.post(N8N_WEBHOOK_URL, payload, { timeout: 15000 });
         console.log(`[trigger] n8n respondió con status ${response.status}:`, response.data);
         res.json({ success: true, message: '¡Envío masivo iniciado con éxito!', data: response.data });
     } catch (error) {
         if (error.code === 'ECONNABORTED') {
             console.error('[trigger] Timeout: n8n no respondió en 15s');
+            setStatus('error', 'Timeout: n8n no respondió en 15s');
             return res.status(504).json({ error: 'Timeout: n8n no respondió. ¿Está activo el webhook en n8n?' });
         }
         const status = error.response?.status;
         const details = error.response?.data ?? error.message;
         console.error(`[trigger] Error ${status ?? ''}:`, details);
+        setStatus('error', `Error n8n (${status ?? 'sin respuesta'})`);
         res.status(500).json({ error: `Error n8n (${status ?? 'sin respuesta'}): ` + JSON.stringify(details) });
     }
 });

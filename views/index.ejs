@@ -644,6 +644,69 @@
                 transform: translateY(0);
             }
         }
+
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.35); }
+            70% { box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
+        }
+
+        /* ─── Status Banner ─── */
+        .status-banner {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 1rem 1.4rem;
+            border-radius: var(--radius);
+            border: 1px solid transparent;
+            font-size: 0.9rem;
+            font-weight: 500;
+            animation: fadeUp 0.4s ease both;
+            transition: all 0.35s ease;
+        }
+
+        .status-banner.hidden {
+            display: none;
+        }
+
+        .status-banner.running {
+            background: rgba(251, 191, 36, 0.07);
+            border-color: rgba(251, 191, 36, 0.25);
+            color: #fbbf24;
+            animation: pulse-ring 1.8s ease-out infinite;
+        }
+
+        .status-banner.done {
+            background: rgba(37, 211, 102, 0.07);
+            border-color: rgba(37, 211, 102, 0.25);
+            color: var(--green);
+        }
+
+        .status-banner.error {
+            background: rgba(248, 113, 113, 0.07);
+            border-color: rgba(248, 113, 113, 0.25);
+            color: #f87171;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .running .status-dot {
+            background: #fbbf24;
+            animation: spin 1s linear infinite;
+            border: 2px solid rgba(251,191,36,0.3);
+            border-top-color: #fbbf24;
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+        }
+
+        .done .status-dot { background: var(--green); }
+        .error .status-dot { background: #f87171; }
     </style>
 </head>
 
@@ -788,6 +851,12 @@
             <input type="text" id="emailSubject" placeholder="Asunto del correo electrónico...">
         </div>
 
+        <!-- Status Banner (actualizado por polling) -->
+        <div class="status-banner hidden" id="statusBanner">
+            <div class="status-dot"></div>
+            <span id="statusText"></span>
+        </div>
+
         <!-- Paso 4: Disparar -->
         <button class="btn-trigger" id="btnTrigger" onclick="executeFlow()">
             <span class="btn-label">Iniciar Envío Automático</span>
@@ -836,6 +905,35 @@
                 wrap.classList.remove('visible');
                 document.getElementById('emailSubject').value = '';
             }
+        }
+
+        // ── Status Banner ──────────────────────────────────────────
+        let _pollInterval = null;
+
+        function updateStatusBanner({ state, message }) {
+            const banner = document.getElementById('statusBanner');
+            const text = document.getElementById('statusText');
+            const icons = { running: '🔄', done: '✅', error: '❌' };
+            banner.className = `status-banner ${state}`;
+            text.textContent = (icons[state] || '') + ' ' + (message || state);
+        }
+
+        function startStatusPolling() {
+            if (_pollInterval) clearInterval(_pollInterval);
+            updateStatusBanner({ state: 'running', message: 'Flujo en ejecución...' });
+
+            _pollInterval = setInterval(async () => {
+                try {
+                    const res = await fetch('/api/status');
+                    const data = await res.json();
+                    updateStatusBanner(data);
+                    if (data.state === 'done' || data.state === 'error') {
+                        clearInterval(_pollInterval);
+                        _pollInterval = null;
+                        toggleLoading('btnTrigger', false);
+                    }
+                } catch (_) { /* silently ignore network blips */ }
+            }, 3000);
         }
 
         function showToast(message, isError = false) {
@@ -893,6 +991,7 @@
 
         async function executeFlow() {
             toggleLoading('btnTrigger', true);
+            let pollingStarted = false;
             try {
                 // 1. Listado
                 const listadoFile = document.getElementById('newListadoFile').files[0];
@@ -942,13 +1041,17 @@
                 const data = await res.json();
                 if (data.success) {
                     showToast(data.message);
-                    setTimeout(() => location.reload(), 2000);
+                    pollingStarted = true;
+                    startStatusPolling(); // show running banner and start polling
                 } else throw new Error(data.error);
 
             } catch (err) {
                 showToast(err.message || 'Error durante el flujo', true);
+                updateStatusBanner({ state: 'error', message: err.message || 'Error durante el flujo' });
             } finally {
-                toggleLoading('btnTrigger', false);
+                if (!pollingStarted) {
+                    toggleLoading('btnTrigger', false);
+                }
             }
         }
     </script>
