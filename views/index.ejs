@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhatsApp Masivo — Dashboard</title>
+    <title>Envío Masivo de Correos — Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -727,13 +727,12 @@
 
     <div class="container">
 
-        <!-- Header -->
         <div class="header">
             <div class="header-badge">
-                <span>💬</span> WhatsApp Masivo
+                <span>✉️</span> Envío de Correos
             </div>
             <h1>Envío <em>Masivo</em></h1>
-            <p>Configura el contenido, selecciona tu audiencia y dispara el flujo con un clic.</p>
+            <p>Configura el contenido del correo, selecciona tu audiencia y dispara el envío con un clic.</p>
         </div>
 
         <div class="steps-grid">
@@ -744,7 +743,7 @@
                     <div class="card-icon">👥</div>
                     <div class="card-title-group">
                         <div class="card-step">Paso 01</div>
-                        <h2>Lista de Contactos</h2>
+                        <h2>Lista de Destinatarios</h2>
                     </div>
                 </div>
                 <div class="form-group">
@@ -777,11 +776,11 @@
                     <div class="card-icon">📝</div>
                     <div class="card-title-group">
                         <div class="card-step">Paso 02</div>
-                        <h2>Mensaje de Texto</h2>
+                        <h2>Cuerpo del Correo</h2>
                     </div>
                 </div>
                 <div class="form-group">
-                    <textarea id="newMessageText" placeholder="Escribe un mensaje nuevo aquí..."></textarea>
+                    <textarea id="newMessageText" placeholder="Escribe el cuerpo del correo aquí..."></textarea>
                 </div>
                 <% if (mensajes && mensajes.length> 0) { %>
                     <div>
@@ -844,24 +843,24 @@
 
         </div> <!-- Fin de steps-grid -->
 
-        <!-- Toggle: también enviar por email -->
-        <div class="email-toggle-row">
+        <!-- Toggle: también enviar por email (OCULTO y ACTIVADO por defecto) -->
+        <div class="email-toggle-row" style="display: none;">
             <div class="email-toggle-info">
                 <span class="email-toggle-icon">✉️</span>
                 <div class="email-toggle-text">
-                    <span class="email-toggle-title">Enviar también por correo</span>
-                    <span class="email-toggle-sub">El mensaje se enviará por WhatsApp. Activa para incluir email.</span>
+                    <span class="email-toggle-title">Activar envío de correo</span>
                 </div>
             </div>
             <label class="toggle-switch">
-                <input type="checkbox" id="sendEmailToggle" onchange="toggleSubject(this)">
+                <input type="checkbox" id="sendEmailToggle" checked onchange="toggleSubject(this)">
                 <span class="toggle-track"></span>
             </label>
         </div>
 
-        <!-- Asunto del correo (visible solo si el toggle está activo) -->
-        <div class="email-subject-wrap" id="emailSubjectWrap">
-            <input type="text" id="emailSubject" placeholder="Asunto del correo electrónico...">
+        <!-- Asunto del correo (SIEMPRE VISIBLE) -->
+        <div class="email-subject-wrap visible" id="emailSubjectWrap">
+            <label style="margin-bottom: 0.5rem; display: block; font-weight: 600;">Asunto del Correo Electrónico:</label>
+            <input type="text" id="emailSubject" placeholder="Escribe el asunto del correo...">
         </div>
 
         <!-- Status Banner (actualizado por polling) -->
@@ -872,7 +871,7 @@
 
         <!-- Paso 4: Disparar -->
         <button class="btn-trigger" id="btnTrigger" onclick="executeFlow()">
-            <span class="btn-label">Iniciar Envío Automático</span>
+            <span class="btn-label">Iniciar Envío de Correos</span>
             <div class="spinner"></div>
         </button>
 
@@ -1042,10 +1041,14 @@
                 }
 
                 // 4. Trigger n8n
-                const sendEmail = document.getElementById('sendEmailToggle').checked;
+                const sendEmail = true; // Forzado a true (WhatsApp desactivado)
                 const emailSubject = document.getElementById('emailSubject').value.trim();
 
-                showToast('Iniciando envío...');
+                if (!emailSubject) {
+                    throw new Error('El asunto del correo es obligatorio.');
+                }
+
+                showToast('Iniciando envío de correos...');
                 const res = await fetch('/api/trigger', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
