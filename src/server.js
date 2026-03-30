@@ -11,7 +11,7 @@ const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL;
 const WORKFLOW_CALLBACK_TOKEN = process.env.WORKFLOW_CALLBACK_TOKEN || null;
 
 // ── Workflow status (in-memory) ──────────────────────────────────────────────
-let workflowStatus = { state: 'idle', message: '', updatedAt: null };
+let workflowStatus = { state: 'idle', message: 'Listo para enviar correos', updatedAt: null };
 function setStatus(state, message) {
     workflowStatus = { state, message, updatedAt: new Date().toISOString() };
     console.log(`[status] ${state}: ${message}`);
@@ -145,7 +145,7 @@ app.post('/api/reuse', requireAuth, async (req, res) => {
 app.post('/api/trigger', requireAuth, async (req, res) => {
     if (!N8N_WEBHOOK_URL) return res.status(500).json({ error: 'URL del webhook no configurada' });
     try {
-        const sendEmail = req.body.sendEmail === true || req.body.sendEmail === 'true';
+        const sendEmail = req.body.sendEmail !== undefined ? (req.body.sendEmail === true || req.body.sendEmail === 'true') : true;
         const emailSubject = req.body.emailSubject || '';
         const payload = {
             triggeredBy: 'Node.js Dashboard',
